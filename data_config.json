@@ -1,0 +1,12 @@
+{
+    "dates": {
+        "train_start": "2000-01-01",
+        "train_end": "2018-01-01",
+        "valid_start": "2018-01-01",
+        "valid_end": "2022-01-01"
+    },
+    "forbes2000": [],
+    "nasdaq": [],
+    "nyse": [],
+    "sp500": ["AAPL", "AEP", "AIZ", "BA", "CAT", "GM"]
+}
