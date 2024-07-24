@@ -31,9 +31,7 @@ pub fn infer<B: Backend>(
     let model = config.model.init::<B>(&device).load_record(record);
 
     let batcher = PriceDataBatcher::<B>::new(device.clone());
-
     let strategy = Strategy::new(&companies_price_data, HOLD_LENGTH, 10000.0);
-
     let mut engine = StrategyEngine::new(start_date, end_date, strategy);
 
     let total_days = engine.end_date.signed_duration_since(start_date).num_days();

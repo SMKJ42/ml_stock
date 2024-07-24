@@ -4,7 +4,7 @@ if you dont already have rustup installed, follow this link https://www.rust-lan
 
 First, run `cargo build` in the terminal.
 
-I have reduced the dataset to only S&P500 companies for evaluators to reduce the file size.
+I have reduced the dataset to only S&P500 companies to reduce the .zip folder's size.
 If you would like a complete dataset, navigate to https://www.kaggle.com/datasets/paultimothymooney/stock-market-data,
 download the data, replace the existing stock_market_data folder and unzip the folder.
 

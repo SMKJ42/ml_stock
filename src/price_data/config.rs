@@ -18,16 +18,19 @@ pub struct DataConfig {
 }
 
 impl DataConfig {
-    pub fn init(&mut self) {
+    pub fn init(&mut self) -> Self {
         println!("Fetching price data...");
 
         self.train_companies
             .refresh_data(self.train_start, self.train_end);
         self.validate_companies
             .refresh_data(self.validate_start, self.validate_end);
+
+        self.to_owned()
     }
 
-    pub fn new(file_path: String) -> Result<DataConfig, Box<dyn Error>> {
+    pub fn new() -> Result<DataConfig, Box<dyn Error>> {
+        let file_path = "config.json";
         let config_file = File::open(file_path.clone())?;
         let data_config: DataConfig = serde_json::from_reader(config_file)?;
         return Ok(data_config);

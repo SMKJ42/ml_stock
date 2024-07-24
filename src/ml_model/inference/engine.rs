@@ -113,13 +113,12 @@ impl<'a> StrategyEngine<'a> {
                     .find(|company| company.symbol == transaction.company.symbol)
                     .unwrap();
 
-                // to buffer for the fact that the market is not always open, we will simulate closing positions if the closeout date falls on
-                // a weekend or a market holiday.
                 let curr_price_idx = company
                     .price_data
                     .iter()
                     .position(|price_data| price_data.date >= self.date)
-                    .unwrap();
+                    .unwrap()
+                    - 1;
 
                 let sale_date = company.price_data[curr_price_idx].date;
                 let current_price = company.price_data[curr_price_idx].close;
