@@ -171,12 +171,7 @@ impl<'a> StrategyEngine<'a> {
             match data {
                 Some(data) => {
                     let batch = batcher.batch(vec![data.clone()]);
-                    batches.push(NormCompanyPriceDataBatch::new(
-                        item.company.clone(),
-                        batch,
-                        data.min,
-                        data.max,
-                    ));
+                    batches.push(NormCompanyPriceDataBatch::new(item.company.clone(), batch));
                 }
                 None => continue,
             }

@@ -20,15 +20,6 @@ pub struct NormBurnPriceDataItem {
 }
 
 impl NormBurnPriceDataItem {
-    pub fn from_data(data: [f64; 32], target: f64, min: f64, max: f64) -> NormBurnPriceDataItem {
-        NormBurnPriceDataItem {
-            data,
-            target,
-            min,
-            max,
-        }
-    }
-
     pub fn from_data_vec(
         data: Vec<f64>,
         target: f64,
@@ -52,10 +43,6 @@ impl NormBurnPriceDataItem {
 }
 
 impl BurnPriceDataItem {
-    pub fn from_data(data: [f64; 32], target: f64) -> BurnPriceDataItem {
-        BurnPriceDataItem { data, target }
-    }
-
     pub fn from_data_vec(data: Vec<f64>, target: f64) -> Result<BurnPriceDataItem, String> {
         if data.len() != 32 {
             return Err(format!(

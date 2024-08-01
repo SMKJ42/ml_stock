@@ -51,39 +51,39 @@ pub fn fetch_company_price_data(
             continue;
         }
 
+        // let volume: i64 = record[3]
+        //     .split(".")
+        //     .next()
+        //     .unwrap()
+        //     .parse()
+        //     .expect(format!("Could not parse volume: {:?}", record).as_str());
+
         // This handles the edge case where the volume is a whole number but the csv file has a decimal value of 0.
         // Sometimes rust cannot safely parse this value, and errors out.
         // We know that all volumes are whole numbers, so we can safely parse the volume as an integer by dropping the decimal.
-        let volume: i64 = record[3]
-            .split(".")
-            .next()
-            .unwrap()
-            .parse()
-            .expect(format!("Could not parse volume: {:?}", record).as_str());
-
         let record = PriceDataItem {
             date: NaiveDate::parse_from_str(&record[0], "%d-%m-%Y")
                 .expect(format!("Could not parse date: {:?}, SYMBOL: {symbol}", record).as_str()),
-            low: record[1]
-                .parse()
-                .expect(format!("Could not parse low: {:?} SYMBOL: {symbol}", record).as_str()),
-            open: record[2]
-                .parse()
-                .expect(format!("Could not parse open: {:?} SYMBOL: {symbol}", record).as_str()),
-            volume: volume,
-            high: record[4]
-                .parse()
-                .expect(format!("Could not parse high: {:?}  SYMBOL: {symbol}", record).as_str()),
+            // low: record[1]
+            //     .parse()
+            //     .expect(format!("Could not parse low: {:?} SYMBOL: {symbol}", record).as_str()),
+            // open: record[2]
+            //     .parse()
+            //     .expect(format!("Could not parse open: {:?} SYMBOL: {symbol}", record).as_str()),
+            // volume: volume,
+            // high: record[4]
+            //     .parse()
+            //     .expect(format!("Could not parse high: {:?}  SYMBOL: {symbol}", record).as_str()),
             close: record[5]
                 .parse()
                 .expect(format!("Could not parse close: {:?}  SYMBOL: {symbol}", record).as_str()),
-            adjusted_close: record[6].parse().expect(
-                format!(
-                    "Could not parse adjusted_close: {:?}  SYMBOL: {symbol}",
-                    record
-                )
-                .as_str(),
-            ),
+            // adjusted_close: record[6].parse().expect(
+            //     format!(
+            //         "Could not parse adjusted_close: {:?}  SYMBOL: {symbol}",
+            //         record
+            //     )
+            //     .as_str(),
+            // ),
         };
 
         if record.date < start || record.date > end {

@@ -72,27 +72,15 @@ pub struct NormCompanyPriceDataBatch<B: Backend> {
     pub company: CompanyPriceData,
     pub data: Tensor<B, 2>,
     pub targets: Tensor<B, 1>,
-    pub min: f64,
-    pub max: f64,
 }
 
 impl<B: Backend> NormCompanyPriceDataBatch<B> {
-    pub fn new(company: CompanyPriceData, batch: PriceDataBatch<B>, min: f64, max: f64) -> Self {
+    pub fn new(company: CompanyPriceData, batch: PriceDataBatch<B>) -> Self {
         NormCompanyPriceDataBatch {
             company,
             data: batch.data,
             targets: batch.targets,
-            min,
-            max,
         }
-    }
-
-    pub fn denormalize(&self) -> Tensor<B, 2> {
-        (self.data.clone() * (self.max - self.min)) + self.min
-    }
-
-    pub fn denormalize_last(&self) -> Tensor<B, 1> {
-        (self.targets.clone() * (self.max - self.min)) + self.min
     }
 
     pub fn norm_delta(&self) -> f64 {
@@ -100,19 +88,4 @@ impl<B: Backend> NormCompanyPriceDataBatch<B> {
         let actual: f64 = self.targets.clone().into_scalar().elem();
         prediction - actual
     }
-
-    pub fn denorm_delta(&self) -> f64 {
-        let prediction = self.denormalize();
-        let actual = self.denormalize_last();
-
-        let prediction: f64 = prediction.flatten::<1>(0, 1).into_scalar().elem();
-        let actual: f64 = actual.into_scalar().elem();
-
-        prediction - actual
-    }
-}
-
-pub struct CompanyPriceDataOutput {
-    pub company: CompanyPriceData,
-    pub prediction: f64,
 }

@@ -70,12 +70,6 @@ pub struct TrainingConfig {
     prediction_interval: usize,
 }
 
-impl TrainingConfig {
-    pub fn update_split(&mut self, split_val: f32) {
-        self.split_val = split_val;
-    }
-}
-
 fn create_artifact_dir(artifact_dir: &str) {
     std::fs::remove_dir_all(artifact_dir).ok();
     std::fs::create_dir_all(artifact_dir).ok();

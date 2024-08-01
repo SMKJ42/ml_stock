@@ -14,31 +14,17 @@ use crate::ml_model::CHUNK_SIZE;
 #[derive(Debug, Clone, Copy)]
 pub struct PriceDataItem {
     pub date: NaiveDate,
-    pub open: f64,
-    pub high: f64,
-    pub low: f64,
+    // pub open: f64,
+    // pub high: f64,
+    // pub low: f64,
     pub close: f64,
-    pub volume: i64,
-    pub adjusted_close: f64,
+    // pub volume: i64,
+    // pub adjusted_close: f64,
 }
 
 impl Hash for PriceDataItem {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.date.hash(state);
-    }
-}
-
-impl PriceDataItem {
-    pub fn zero() -> Self {
-        PriceDataItem {
-            date: NaiveDate::MIN,
-            open: f64::MIN,
-            high: f64::MIN,
-            low: f64::MIN,
-            close: f64::MIN,
-            volume: i64::MIN,
-            adjusted_close: f64::MIN,
-        }
     }
 }
 
@@ -142,8 +128,6 @@ pub struct CompaniesPriceData {
     pub companies: Vec<CompanyPriceData>,
 }
 
-pub type ClosePrice = f32;
-
 impl CompaniesPriceData {
     pub fn new() -> CompaniesPriceData {
         CompaniesPriceData {
@@ -153,10 +137,6 @@ impl CompaniesPriceData {
 
     pub fn flush(&mut self) {
         self.companies = Vec::new();
-    }
-
-    pub fn extend(&mut self, other: CompaniesPriceData) {
-        self.companies.extend(other.companies);
     }
 
     pub fn push(&mut self, company: CompanyPriceData) {
@@ -225,17 +205,6 @@ impl SearchableCompany {
         SearchableCompany {
             company,
             search_data,
-        }
-    }
-
-    pub fn zero() -> Self {
-        SearchableCompany {
-            company: CompanyPriceData {
-                symbol: "".to_string(),
-                exchange: "".to_string(),
-                price_data: Vec::new(),
-            },
-            search_data: Vec::new(),
         }
     }
 }
