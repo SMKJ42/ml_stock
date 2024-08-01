@@ -12,10 +12,8 @@ use burn::{
     nn::loss::{MseLoss, Reduction},
     optim::AdamConfig,
     record::CompactRecorder,
-    tensor::{
-        backend::{AutodiffBackend, Backend},
-        Tensor,
-    },
+    tensor::backend::{AutodiffBackend, Backend},
+    tensor::Tensor,
     train::{
         metric::LossMetric, LearnerBuilder, RegressionOutput, TrainOutput, TrainStep, ValidStep,
     },

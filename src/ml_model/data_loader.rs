@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::price_data::CompaniesPriceData;
 
-pub const WIDTH: usize = 32;
+use super::CHUNK_SIZE;
 
 #[derive(Copy, Deserialize, Serialize, Debug, Clone)]
 pub struct BurnPriceDataItem {
@@ -133,15 +133,15 @@ impl TrainPriceDataSet {
         for company in companies.companies {
             let mut i = 0;
 
-            let min_len = WIDTH + prediction_interval + 1;
+            let min_len = CHUNK_SIZE + prediction_interval + 1;
             if company.price_data.len() < min_len {
                 continue;
             }
 
-            while i < company.price_data.len() - WIDTH - prediction_interval {
-                let slice = &company.price_data[i..i + WIDTH];
+            while i < company.price_data.len() - CHUNK_SIZE - prediction_interval {
+                let slice = &company.price_data[i..i + CHUNK_SIZE];
                 let data = slice.iter().map(|x| x.close).collect();
-                let target = company.price_data[i + WIDTH + prediction_interval].close;
+                let target = company.price_data[i + CHUNK_SIZE + prediction_interval].close;
 
                 let data = BurnPriceDataItem::from_data_vec(data, target)
                     .unwrap()

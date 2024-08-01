@@ -1,7 +1,7 @@
 use burn::backend::libtorch::LibTorchDevice;
-use price_data::config::DataConfig;
-pub mod ml_model;
-pub mod price_data;
+use price_data::DataConfig;
+mod ml_model;
+mod price_data;
 
 fn main() {
     let data_config = DataConfig::new()
@@ -13,7 +13,6 @@ fn main() {
     let device = LibTorchDevice::default();
 
     model.train_model(data_config.train_companies, device.clone());
-    println!("Model trained");
 
     model.validate_model(
         data_config.validate_companies,

@@ -1,13 +1,15 @@
-pub mod config;
-pub mod parse;
+mod config;
+mod parse;
+pub use config::DataConfig;
 
 use std::{
     fs::File,
     hash::{Hash, Hasher},
 };
 
-use crate::ml_model::data_loader::WIDTH;
 use chrono::NaiveDate;
+
+use crate::ml_model::CHUNK_SIZE;
 
 #[derive(Debug, Clone, Copy)]
 pub struct PriceDataItem {
@@ -195,12 +197,12 @@ impl CompaniesPriceData {
     fn fetch_last_n_days(&self, curr_date: NaiveDate) -> Vec<SearchableCompany> {
         let mut items = Vec::new();
         for company in self.companies.iter() {
-            let data = company.to_owned().fetch_last_n_days(curr_date, WIDTH);
+            let data = company.to_owned().fetch_last_n_days(curr_date, CHUNK_SIZE);
 
             match data {
                 None => continue,
                 Some(price_data) => {
-                    if price_data.len() < WIDTH {
+                    if price_data.len() < CHUNK_SIZE {
                         continue;
                     }
                     items.push(SearchableCompany::new(company.clone(), price_data))

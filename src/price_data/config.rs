@@ -31,7 +31,7 @@ impl DataConfig {
 
     pub fn new() -> Result<DataConfig, Box<dyn Error>> {
         let file_path = "config.json";
-        let config_file = File::open(file_path.clone())?;
+        let config_file = File::open(file_path)?;
         let data_config: DataConfig = serde_json::from_reader(config_file)?;
         return Ok(data_config);
     }

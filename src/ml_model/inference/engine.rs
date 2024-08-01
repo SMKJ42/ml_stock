@@ -17,7 +17,7 @@ pub struct StrategyEngine<'a> {
     pub date: NaiveDate,
     pub book: Book,
     pub strategy: Strategy<'a>,
-    pub balance_history: Vec<(NaiveDate, f64)>,
+    pub value_history: Vec<(NaiveDate, f64)>,
 }
 
 impl<'a> StrategyEngine<'a> {
@@ -28,40 +28,31 @@ impl<'a> StrategyEngine<'a> {
             end_date,
             book,
             strategy,
-            balance_history: Vec::new(),
+            value_history: Vec::new(),
         }
     }
 
     pub fn step_day<B: Backend>(&mut self, batcher: &PriceDataBatcher<B>, model: &Model<B>) {
-        let mut batches: Vec<NormCompanyPriceDataBatch<B>> =
-            self.batch_set(batcher, self.date, self.strategy.companies);
-
-        batches
-            .iter_mut()
-            .for_each(|batch| batch.data = model.forward(batch.data.clone()));
-
-        batches.sort_by(|batch1, batch2| {
-            let val1 = batch1.norm_delta();
-            let val2 = batch2.norm_delta();
-            val1.partial_cmp(&val2).unwrap()
-        });
-
         // this need something to adapt for larger datasets, but sqrt limits the selections too much.
-        let purchase_weight = batches.len() / 2;
+        let predictions = self.predict_prices(batcher, model);
+
+        let purchase_weight = predictions.len() / 2;
 
         let selections: Vec<&NormCompanyPriceDataBatch<B>> =
-            batches.iter().take((purchase_weight).max(1)).collect();
+            predictions.iter().take((purchase_weight).max(1)).collect();
 
         let selections_len = selections.len();
 
         for selection in selections {
             self.purchase(selection, selections_len);
         }
-        self.checked_sell();
+
+        self.sell_stale_positions();
+
+        println!("HOLDINGS: {:#?}", self.book.holdings);
 
         let curr_value = self.book.value(self.strategy.companies.clone(), self.date);
-
-        self.balance_history.push((self.date, curr_value));
+        self.value_history.push((self.date, curr_value));
 
         self.incr_date();
     }
@@ -82,21 +73,17 @@ impl<'a> StrategyEngine<'a> {
         let weight = 1.0 / count as f64;
         let share_count = (self.strategy.start_balance * weight) / current_price;
 
-        let norm_delta = selection.norm_delta();
+        let holding = Holding::new(
+            selection.company.company().clone(),
+            self.date,
+            current_price,
+            share_count as usize,
+        );
 
-        if norm_delta < 0.2 {
-            let holding = Holding::new(
-                selection.company.company().clone(),
-                self.date,
-                current_price,
-                share_count as usize,
-            );
-
-            self.book.purchase(holding, current_price, self.date);
-        }
+        self.book.purchase(holding, current_price, self.date);
     }
 
-    fn checked_sell(&mut self) {
+    fn sell_stale_positions(&mut self) {
         let holdings = self.book.holdings.clone();
 
         holdings.iter().for_each(|transaction| {
@@ -117,8 +104,7 @@ impl<'a> StrategyEngine<'a> {
                     .price_data
                     .iter()
                     .position(|price_data| price_data.date >= self.date)
-                    .unwrap()
-                    - 1;
+                    .unwrap();
 
                 let sale_date = company.price_data[curr_price_idx].date;
                 let current_price = company.price_data[curr_price_idx].close;
@@ -127,6 +113,27 @@ impl<'a> StrategyEngine<'a> {
                     .sell(transaction.clone(), current_price, sale_date);
             }
         });
+    }
+
+    fn predict_prices<B: Backend>(
+        &self,
+        batcher: &PriceDataBatcher<B>,
+        model: &Model<B>,
+    ) -> Vec<NormCompanyPriceDataBatch<B>> {
+        let mut batches: Vec<NormCompanyPriceDataBatch<B>> =
+            self.batch_set(batcher, self.date, self.strategy.companies);
+
+        batches
+            .iter_mut()
+            .for_each(|batch| batch.data = model.forward(batch.data.clone()));
+
+        batches.sort_by(|batch1, batch2| {
+            let val1 = batch1.norm_delta();
+            let val2 = batch2.norm_delta();
+            val1.partial_cmp(&val2).unwrap()
+        });
+
+        return batches;
     }
 
     fn incr_date(&mut self) {
@@ -138,8 +145,6 @@ impl<'a> StrategyEngine<'a> {
         if dow == Weekday::Sun {
             new_date = new_date.succ_opt().unwrap();
         }
-        assert_ne!(self.date, new_date);
-
         self.date = new_date;
     }
 
